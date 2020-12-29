@@ -1,0 +1,9 @@
+Yearly report for all categories : 2019-Mar-01 2020-Feb-29 | 2018-Mar-01 2019-Feb-28
+Bank Transfer                                    :  -7316.00 |  -1007.00
+Current                                          :    666.00 |      0.00
+Gifts                                            :    256.16 |      0.00
+Groceries                                        :    176.32 |     88.60
+Previous                                         :      0.00 |    444.00
+Taxes                                            :   3103.00 |   3087.00
+Travel Expenses                                  :      0.00 |   3879.00
+TOTAL                                            :  -3114.52 |   6491.60

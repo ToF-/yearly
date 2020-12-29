@@ -1,0 +1,20 @@
+DATE,LABEL,CATEGORY,AMOUNT
+2020-01-23,"Fresh Food, inc",Groceries,52.00
+2019-09-30,"Fresh Food, inc",Groceries,124.32
+2019-01-12,"Fresh Food, inc",Groceries,34.88
+2018-04-24,"Fresh Food, inc",Groceries,53.72
+2018-12-24,CHSTXCC,Taxes,3087.00
+2019-12-23,CHSTXCC,Taxes,3103.00
+2019-06-01,Reimbursement,Bank Transfer,-4429.00
+2019-07-01,Reimbursement,Bank Transfer,-2887.00
+2019-01-20,Reimbursement,Bank Transfer,-1007.00
+2018-10-10,OneTime,Travel Expenses,3879.00
+2019-10-10,Unique,Gifts,256.16
+2020-03-01,After Current,Not Included,10000.00
+2018-02-28,Before Previous,Not Included,10000.00
+2019-02-28,End Previous,Previous,4.00
+2018-03-01,Start Previous,Previous,40.00
+2019-03-01,After Previous,Current,600.00
+2019-02-28,Before Current,Previous,400.00
+2020-02-29,End Current,Current,6.00
+2019-03-01,Start Current,Current,60.00

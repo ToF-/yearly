@@ -1,0 +1,9 @@
+Yearly report for all categories : Jan 2020-Dec 2020 | Jan 2019-Dec 2019
+Bank Transfer                                    :      0.00 |  -8323.00
+Current                                          :      6.00 |    660.00
+Gifts                                            :      0.00 |    256.16
+Groceries                                        :     52.00 |    159.20
+Not Included                                     :  10000.00 |      0.00
+Previous                                         :      0.00 |    404.00
+Taxes                                            :      0.00 |   3103.00
+TOTAL                                            :  10058.00 |  -3740.64
