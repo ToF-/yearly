@@ -28,7 +28,7 @@ def yearly_selection(args):
         current_end = datetime(current_year, 12, 31)
 
     if args.yearly_selection_type != YearlySelectionType.TODATE:
-        previous_end = datetime(current_end.year-1, current_end.month, current_end.day)
+        previous_end = datetime(current_end.year-1, current_end.month, last_day_of_month(date(current_end.year-1, current_month, 1)).day)
     else:
         previous_end = datetime(current_end.year-1, 12,31)
     current_start = previous_end + timedelta(days=1)
