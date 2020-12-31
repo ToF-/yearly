@@ -3,7 +3,7 @@ from datetime import date,datetime
 from datetime import timedelta
 from enum import Enum
 from period import Period
-YearlySelection = namedtuple("YearlySelection", "current previous")
+YearlySelection = namedtuple("YearlySelection", "yearly_selection_type current previous")
 
 def current_year_and_month():
     today = date.today()
@@ -33,5 +33,5 @@ def yearly_selection(args):
         previous_end = datetime(current_end.year-1, 12,31)
     current_start = previous_end + timedelta(days=1)
     previous_start = datetime(current_start.year-1, current_start.month, current_start.day)
-    return YearlySelection(Period(current_start, current_end), Period(previous_start, previous_end))
+    return YearlySelection(args.yearly_selection_type,Period(current_start, current_end), Period(previous_start, previous_end))
 
