@@ -1,9 +1,11 @@
-#[cfg(test)]
+use chrono::{TimeZone,Utc};
 
+#[cfg(test)]
 mod tests {
+    use super::*;
 
     #[test]
-    fn dummy() {
-        assert_eq!(2+2,4);
+    fn total_expenses_per_category() {
+        assert_eq!(Utc.ymd(2020,02,29), Utc.ymd(2020,02,29));
     }
 }
