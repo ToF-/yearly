@@ -1,6 +1,6 @@
 mod date {
 
-    use chrono::{Date,Duration,Utc};
+    use chrono::{Date,Duration,TimeZone,Utc};
 
     pub fn a_day_earlier(date: Date<Utc>) -> Option<Date<Utc>> {
         date.checked_sub_signed(Duration::days(1))
@@ -8,7 +8,14 @@ mod date {
 
     pub fn within(period: (Date<Utc>, Date<Utc>), date: Date<Utc>) -> bool {
         let (start, end) = period;
-        date >= start && date <= end 
+        date >= start && date <= end
+    }
+
+    pub fn end_of_month(year: i32, month: u32) -> Option<Date<Utc>> {
+        match month {
+            12 => Some(Utc.ymd(year,12,31)),
+            m  => a_day_earlier(Utc.ymd(year, month+1, 1)),
+        }
     }
 }
 
@@ -37,4 +44,12 @@ mod tests {
         assert_eq!(within(period,Utc.ymd(2020,01,01)),true);
         assert_eq!(within(period,Utc.ymd(2020,12,31)),true);
     }
+
+    #[test]
+    fn given_a_year_and_a_month_find_end_of_month() {
+        assert_eq!(end_of_month(2020,02), Some(Utc.ymd(2020,02,29)));
+        assert_eq!(end_of_month(2020,01), Some(Utc.ymd(2020,01,31)));
+        assert_eq!(end_of_month(2020,12), Some(Utc.ymd(2020,12,31)));
+    }
+
 }
