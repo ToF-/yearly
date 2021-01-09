@@ -14,13 +14,70 @@ mod date {
     pub fn end_of_month(year: i32, month: u32) -> Option<Date<Utc>> {
         match month {
             12 => Some(Utc.ymd(year,12,31)),
-            m  => a_day_earlier(Utc.ymd(year, month+1, 1)),
+            _  => a_day_earlier(Utc.ymd(year, month+1, 1)),
         }
     }
 }
 
+mod transaction {
+
+    use chrono::{Date,Utc};
+
+pub struct Transaction {
+    pub date: Date<Utc>,
+    pub category: String,
+    pub label: String,
+    pub amount: i64,
+}
+
+pub struct Total {
+    pub category: String,
+    pub amount: i64,
+}
+
+pub fn total_per_category(transactions: Vec<Transaction>) -> Vec<Total> {
+    let mut result = Vec::<Total>::new();
+    transactions.iter().for_each( | transaction | result.push(Total {
+        amount: transaction.amount,
+        category: transaction.category.clone(),
+    }));
+    result
+
+}
+
+}
 #[cfg(test)]
-mod tests {
+mod tests_transaction {
+    use super::*;
+    use date::*;
+    use transaction::*;
+    use chrono::{Duration,Date,TimeZone,Utc};
+
+    #[test]
+    fn total_per_category_on_an_empty_list_should_yield_an_empty_list() {
+        let transactions = Vec::<Transaction>::new();
+        let totals = total_per_category(transactions);
+        assert_eq!(totals.len(), 0);
+    }
+
+    #[test]
+    fn total_per_category_on_a_single_transaction_should_yield_the_transaction_amount() {
+        let mut transactions = Vec::<Transaction>::new();
+        transactions.push(Transaction {
+            date: Utc.ymd(2020,02,29),
+            label: "some groceries".to_string(),
+            category: "Groceries".to_string(),
+            amount: 4807,
+        });
+
+        let totals = total_per_category(transactions);
+        assert_eq!(totals.len(), 1);
+        assert_eq!(totals[0].category, "Groceries");
+        assert_eq!(totals[0].amount, 4807);
+    }
+}
+#[cfg(test)]
+mod tests_date {
     use super::*;
     use date::*;
     use chrono::{Duration,Date,TimeZone,Utc};
