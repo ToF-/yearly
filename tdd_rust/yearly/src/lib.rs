@@ -1,11 +1,18 @@
-use chrono::{Duration,Date,TimeZone,Utc};
+mod date {
+
+    use chrono::{Date,Duration,Utc};
+
+    pub fn a_day_earlier(date: Date<Utc>) -> Option<Date<Utc>> {
+        date.checked_sub_signed(Duration::days(1))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+    use date::*;
+    use chrono::{Duration,Date,TimeZone,Utc};
 
-fn a_day_earlier(date: Date<Utc>) -> Option<Date<Utc>> {
-    date.checked_sub_signed(Duration::days(1))
-}
     #[test]
     fn a_date_should_be_equal_to_itself() {
         assert_eq!(Utc.ymd(2020,02,29), Utc.ymd(2020,02,29));
