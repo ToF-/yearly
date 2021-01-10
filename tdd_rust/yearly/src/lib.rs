@@ -80,25 +80,32 @@ mod tests_transaction {
     }
 
     #[test]
-    fn total_on_one_category_for_everal_transactions_should_yield_the_category_total() {
+    fn total_on_one_category_for_several_transactions_should_yield_the_category_total() {
         let mut transactions = Vec::<Transaction>::new();
-        transactions.push(Transaction {
-            date: Utc.ymd(2020,02,29),
-            label: "some groceries".to_string(),
-            category: "Groceries".to_string(),
-            amount: 4807,
-        });
-        transactions.push(Transaction {
-            date: Utc.ymd(2020,03,20),
-            label: "other groceries".to_string(),
-            category: "Groceries".to_string(),
-            amount: 10000,
-        });
+        transactions.push(Transaction { date: Utc.ymd(2020,02,29), label: "some groceries".to_string(), category: "Groceries".to_string(), amount: 4807, });
+        transactions.push(Transaction { date: Utc.ymd(2020,03,20), label: "other groceries".to_string(), category: "Groceries".to_string(), amount: 10000, });
 
         let totals = total_per_category(transactions);
         assert_eq!(totals.len(), 1);
         assert_eq!(totals[0].category, "Groceries");
         assert_eq!(totals[0].amount, 14807);
+    }
+
+    #[test]
+    fn total_on_several_categories_for_several_transactions_should_yield_the_total_per_category() {
+        let mut transactions = Vec::<Transaction>::new();
+        transactions.push(Transaction { date: Utc.ymd(2020,02,29), label: "some groceries".to_string(), category: "Groceries".to_string(), amount: 4807, });
+        transactions.push(Transaction { date: Utc.ymd(2020,03,20), label: "other groceries".to_string(), category: "Groceries".to_string(), amount: 10000, });
+
+        transactions.push(Transaction { date: Utc.ymd(2020,01,29), label: "some taxes".to_string(), category: "Taxes".to_string(), amount: 2000, });
+        transactions.push(Transaction { date: Utc.ymd(2020,04,20), label: "other taxes".to_string(), category: "Taxes".to_string(), amount: 20000, });
+
+        let totals = total_per_category(transactions);
+        assert_eq!(totals.len(), 2);
+        assert_eq!(totals[0].category, "Groceries");
+        assert_eq!(totals[0].amount, 14807);
+        assert_eq!(totals[1].category, "Taxes");
+        assert_eq!(totals[1].amount, 22000);
     }
 }
 #[cfg(test)]
