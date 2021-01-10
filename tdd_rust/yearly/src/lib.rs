@@ -30,7 +30,7 @@ pub struct Transaction {
     pub label: String,
     pub amount: i64,
 }
-
+#[derive(PartialEq,Eq,Ord,PartialOrd)]
 pub struct Total {
     pub category: String,
     pub amount: i64,
@@ -45,6 +45,7 @@ pub fn total_per_category(transactions: Vec<Transaction>) -> Vec<Total> {
                                      });
     let mut result = Vec::<Total>::new();
     totals.iter().for_each( | (category,amount) | result.push(Total { category: category.clone(), amount: *amount, }));
+    result.sort();
     result
 }
 
