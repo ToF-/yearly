@@ -1,28 +1,22 @@
-mod date {
+use chrono::{Date,Duration,TimeZone,Utc};
 
-    use chrono::{Date,Duration,TimeZone,Utc};
+pub fn a_day_earlier(date: Date<Utc>) -> Option<Date<Utc>> {
+    date.checked_sub_signed(Duration::days(1))
+}
 
-    pub fn a_day_earlier(date: Date<Utc>) -> Option<Date<Utc>> {
-        date.checked_sub_signed(Duration::days(1))
-    }
+pub fn within(period: (Date<Utc>, Date<Utc>), date: Date<Utc>) -> bool {
+    let (start, end) = period;
+    date >= start && date <= end
+}
 
-    pub fn within(period: (Date<Utc>, Date<Utc>), date: Date<Utc>) -> bool {
-        let (start, end) = period;
-        date >= start && date <= end
-    }
-
-    pub fn end_of_month(year: i32, month: u32) -> Option<Date<Utc>> {
-        match month {
-            12 => Some(Utc.ymd(year,12,31)),
-            _  => a_day_earlier(Utc.ymd(year, month+1, 1)),
-        }
+pub fn end_of_month(year: i32, month: u32) -> Option<Date<Utc>> {
+    match month {
+        12 => Some(Utc.ymd(year,12,31)),
+        _  => a_day_earlier(Utc.ymd(year, month+1, 1)),
     }
 }
 
-mod transaction {
-
-    use chrono::{Date,Utc};
-    use std::collections::HashMap;
+use std::collections::HashMap;
 
 pub struct Transaction {
     pub date: Date<Utc>,
@@ -40,21 +34,22 @@ pub fn total_per_category(transactions: Vec<Transaction>) -> Vec<Total> {
     let mut totals = HashMap::<String,i64>::new();
     transactions.iter().for_each( | transaction |
                                   {
-                                         let amount:i64 = *totals.entry(transaction.category.clone()).or_insert(0);
-                                         totals.insert(transaction.category.clone(), amount + transaction.amount);
-                                     });
+                                      let amount:i64 = *totals.entry(transaction.category.clone()).or_insert(0);
+                                      totals.insert(transaction.category.clone(), amount + transaction.amount);
+                                  });
     let mut result = Vec::<Total>::new();
     totals.iter().for_each( | (category,amount) | result.push(Total { category: category.clone(), amount: *amount, }));
     result.sort();
     result
 }
 
+pub fn from_period(mut transactions: Vec<Transaction>, period: (Date<Utc>, Date<Utc>)) -> Vec<Transaction> {
+    transactions.retain(|transaction| within(period, transaction.date));
+    transactions
 }
 #[cfg(test)]
 mod tests_transaction {
     use super::*;
-    use date::*;
-    use transaction::*;
     use chrono::{Duration,Date,TimeZone,Utc};
 
     #[test]
@@ -108,11 +103,25 @@ mod tests_transaction {
         assert_eq!(totals[1].category, "Taxes");
         assert_eq!(totals[1].amount, 22000);
     }
+
+    #[test]
+    fn transactions_should_be_selected_given_a_period() {
+        let mut transactions = Vec::<Transaction>::new();
+        transactions.push(Transaction { date: Utc.ymd(2020,02,29), label: "some groceries".to_string(), category: "Groceries".to_string(), amount: 4807, });
+        transactions.push(Transaction { date: Utc.ymd(2020,03,20), label: "other groceries".to_string(), category: "Groceries".to_string(), amount: 10000, });
+
+        transactions.push(Transaction { date: Utc.ymd(2020,01,29), label: "some taxes".to_string(), category: "Taxes".to_string(), amount: 2000, });
+        transactions.push(Transaction { date: Utc.ymd(2020,04,20), label: "other taxes".to_string(), category: "Taxes".to_string(), amount: 20000, });
+        let period = (Utc.ymd(2020, 01, 01), Utc.ymd(2020,02,29));
+        let selection = from_period(transactions, period);
+        assert_eq!(selection.len(), 2);
+        assert_eq!(selection[0].label, "some groceries");
+        assert_eq!(selection[1].label, "some taxes");
+    }
 }
 #[cfg(test)]
 mod tests_date {
     use super::*;
-    use date::*;
     use chrono::{Date,TimeZone,Utc};
 
     #[test]
