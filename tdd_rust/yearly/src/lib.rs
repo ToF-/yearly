@@ -22,6 +22,7 @@ mod date {
 mod transaction {
 
     use chrono::{Date,Utc};
+    use std::collections::HashMap;
 
 pub struct Transaction {
     pub date: Date<Utc>,
@@ -36,13 +37,15 @@ pub struct Total {
 }
 
 pub fn total_per_category(transactions: Vec<Transaction>) -> Vec<Total> {
+    let mut totals = HashMap::<String,i64>::new();
+    transactions.iter().for_each( | transaction |
+                                  {
+                                         let amount:i64 = *totals.entry(transaction.category.clone()).or_insert(0);
+                                         totals.insert(transaction.category.clone(), amount + transaction.amount);
+                                     });
     let mut result = Vec::<Total>::new();
-    transactions.iter().for_each( | transaction | result.push(Total {
-        amount: transaction.amount,
-        category: transaction.category.clone(),
-    }));
+    totals.iter().for_each( | (category,amount) | result.push(Total { category: category.clone(), amount: *amount, }));
     result
-
 }
 
 }
@@ -75,12 +78,34 @@ mod tests_transaction {
         assert_eq!(totals[0].category, "Groceries");
         assert_eq!(totals[0].amount, 4807);
     }
+
+    #[test]
+    fn total_on_one_category_for_everal_transactions_should_yield_the_category_total() {
+        let mut transactions = Vec::<Transaction>::new();
+        transactions.push(Transaction {
+            date: Utc.ymd(2020,02,29),
+            label: "some groceries".to_string(),
+            category: "Groceries".to_string(),
+            amount: 4807,
+        });
+        transactions.push(Transaction {
+            date: Utc.ymd(2020,03,20),
+            label: "other groceries".to_string(),
+            category: "Groceries".to_string(),
+            amount: 10000,
+        });
+
+        let totals = total_per_category(transactions);
+        assert_eq!(totals.len(), 1);
+        assert_eq!(totals[0].category, "Groceries");
+        assert_eq!(totals[0].amount, 14807);
+    }
 }
 #[cfg(test)]
 mod tests_date {
     use super::*;
     use date::*;
-    use chrono::{Duration,Date,TimeZone,Utc};
+    use chrono::{Date,TimeZone,Utc};
 
     #[test]
     fn a_date_should_be_equal_to_itself() {
