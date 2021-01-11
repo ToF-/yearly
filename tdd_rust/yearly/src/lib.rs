@@ -27,18 +27,53 @@ pub struct Transaction {
 #[derive(PartialEq,Eq,Ord,PartialOrd)]
 pub struct Total {
     pub category: String,
-    pub amount: i64,
+    pub amounts: (i64, i64),
 }
+pub enum Period {
+    Current,
+    Previous
+}
+#[cfg(test)]
+mod test_period {
+    use super::*;
+    
+    fn legit_but_false(period: Period) -> i64 {
+        match period {
+            Current => 0,
+            Previous => -1,
+        }
+    }
+    fn correct_match(period: Period) -> i64 {
+        match period {
+            Period::Current => 0,
+            Period::Previous => -1,
+        }
+    }
+    #[test]
+    fn should_detect_the_right_value_but_wont() {
+        assert_eq!(legit_but_false(Period::Current), 0);
+        assert_eq!(legit_but_false(Period::Previous), 0);  
+    }
+    #[test]
+    fn should_detect_the_right_value_and_will() {
+        assert_eq!(correct_match(Period::Current), 0);
+        assert_eq!(correct_match(Period::Previous), -1);
+    }
+}
+pub fn total_per_category(transactions: Vec<Transaction>, period: Period) -> Vec<Total> {
 
-pub fn total_per_category(transactions: Vec<Transaction>) -> Vec<Total> {
-    let mut totals = HashMap::<String,i64>::new();
+    let mut totals = HashMap::<String,(i64,i64)>::new();
     transactions.iter().for_each( | transaction |
                                   {
-                                      let amount:i64 = *totals.entry(transaction.category.clone()).or_insert(0);
-                                      totals.insert(transaction.category.clone(), amount + transaction.amount);
+                                      let (current_amount, previous_amount) = *totals.entry(transaction.category.clone()).or_insert((0,0));
+                                      let amounts = match &period {
+                                          Period::Current =>  (current_amount + transaction.amount, previous_amount),
+                                          Period::Previous => (current_amount, previous_amount + transaction.amount),
+                                      };
+                                      totals.insert(transaction.category.clone(), amounts);
                                   });
     let mut result = Vec::<Total>::new();
-    totals.iter().for_each( | (category,amount) | result.push(Total { category: category.clone(), amount: *amount, }));
+    totals.iter().for_each( | (category,amounts) | result.push(Total { category: category.clone(), amounts: *amounts, }));
     result.sort();
     result
 }
@@ -55,7 +90,7 @@ mod tests_transaction {
     #[test]
     fn total_per_category_on_an_empty_list_should_yield_an_empty_list() {
         let transactions = Vec::<Transaction>::new();
-        let totals = total_per_category(transactions);
+        let totals = total_per_category(transactions, Period::Current);
         assert_eq!(totals.len(), 0);
     }
 
@@ -69,10 +104,10 @@ mod tests_transaction {
             amount: 4807,
         });
 
-        let totals = total_per_category(transactions);
+        let totals = total_per_category(transactions, Period::Current);
         assert_eq!(totals.len(), 1);
         assert_eq!(totals[0].category, "Groceries");
-        assert_eq!(totals[0].amount, 4807);
+        assert_eq!(totals[0].amounts, (4807,0));
     }
 
     #[test]
@@ -81,14 +116,14 @@ mod tests_transaction {
         transactions.push(Transaction { date: Utc.ymd(2020,02,29), label: "some groceries".to_string(), category: "Groceries".to_string(), amount: 4807, });
         transactions.push(Transaction { date: Utc.ymd(2020,03,20), label: "other groceries".to_string(), category: "Groceries".to_string(), amount: 10000, });
 
-        let totals = total_per_category(transactions);
+        let totals = total_per_category(transactions, Period::Current);
         assert_eq!(totals.len(), 1);
         assert_eq!(totals[0].category, "Groceries");
-        assert_eq!(totals[0].amount, 14807);
+        assert_eq!(totals[0].amounts, (14807,0));
     }
 
     #[test]
-    fn total_on_several_categories_for_several_transactions_should_yield_the_total_per_category() {
+    fn total_on_several_categories_for_several_transactions_should_yield_the_total_per_category_on_current_period() {
         let mut transactions = Vec::<Transaction>::new();
         transactions.push(Transaction { date: Utc.ymd(2020,02,29), label: "some groceries".to_string(), category: "Groceries".to_string(), amount: 4807, });
         transactions.push(Transaction { date: Utc.ymd(2020,03,20), label: "other groceries".to_string(), category: "Groceries".to_string(), amount: 10000, });
@@ -96,12 +131,29 @@ mod tests_transaction {
         transactions.push(Transaction { date: Utc.ymd(2020,01,29), label: "some taxes".to_string(), category: "Taxes".to_string(), amount: 2000, });
         transactions.push(Transaction { date: Utc.ymd(2020,04,20), label: "other taxes".to_string(), category: "Taxes".to_string(), amount: 20000, });
 
-        let totals = total_per_category(transactions);
+        let totals = total_per_category(transactions, Period::Current);
         assert_eq!(totals.len(), 2);
         assert_eq!(totals[0].category, "Groceries");
-        assert_eq!(totals[0].amount, 14807);
+        assert_eq!(totals[0].amounts, (14807,0));
         assert_eq!(totals[1].category, "Taxes");
-        assert_eq!(totals[1].amount, 22000);
+        assert_eq!(totals[1].amounts, (22000,0));
+    }
+
+    #[test]
+    fn total_on_several_categories_for_several_transactions_should_yield_the_total_per_category_on_previous_period() {
+        let mut transactions = Vec::<Transaction>::new();
+        transactions.push(Transaction { date: Utc.ymd(2020,02,29), label: "some groceries".to_string(), category: "Groceries".to_string(), amount: 4807, });
+        transactions.push(Transaction { date: Utc.ymd(2020,03,20), label: "other groceries".to_string(), category: "Groceries".to_string(), amount: 10000, });
+
+        transactions.push(Transaction { date: Utc.ymd(2020,01,29), label: "some taxes".to_string(), category: "Taxes".to_string(), amount: 2000, });
+        transactions.push(Transaction { date: Utc.ymd(2020,04,20), label: "other taxes".to_string(), category: "Taxes".to_string(), amount: 20000, });
+
+        let totals = total_per_category(transactions, Period::Previous);
+        assert_eq!(totals.len(), 2);
+        assert_eq!(totals[0].category, "Groceries");
+        assert_eq!(totals[0].amounts, (0,14807));
+        assert_eq!(totals[1].category, "Taxes");
+        assert_eq!(totals[1].amounts, (0,22000));
     }
 
     #[test]
