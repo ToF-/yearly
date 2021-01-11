@@ -1,3 +1,4 @@
+#[allow(dead_code)]
 use chrono::{Date,Duration,TimeZone,Utc};
 
 pub fn a_day_earlier(date: Date<Utc>) -> Option<Date<Utc>> {
@@ -33,33 +34,7 @@ pub enum Period {
     Current,
     Previous
 }
-#[cfg(test)]
-mod test_period {
-    use super::*;
-    
-    fn legit_but_false(period: Period) -> i64 {
-        match period {
-            Current => 0,
-            Previous => -1,
-        }
-    }
-    fn correct_match(period: Period) -> i64 {
-        match period {
-            Period::Current => 0,
-            Period::Previous => -1,
-        }
-    }
-    #[test]
-    fn should_detect_the_right_value_but_wont() {
-        assert_eq!(legit_but_false(Period::Current), 0);
-        assert_eq!(legit_but_false(Period::Previous), 0);  
-    }
-    #[test]
-    fn should_detect_the_right_value_and_will() {
-        assert_eq!(correct_match(Period::Current), 0);
-        assert_eq!(correct_match(Period::Previous), -1);
-    }
-}
+
 pub fn total_per_category(transactions: Vec<Transaction>, period: Period) -> Vec<Total> {
 
     let mut totals = HashMap::<String,(i64,i64)>::new();
@@ -85,7 +60,7 @@ pub fn from_period(mut transactions: Vec<Transaction>, period: (Date<Utc>, Date<
 #[cfg(test)]
 mod tests_transaction {
     use super::*;
-    use chrono::{Duration,Date,TimeZone,Utc};
+    use chrono::{TimeZone,Utc};
 
     #[test]
     fn total_per_category_on_an_empty_list_should_yield_an_empty_list() {
@@ -174,7 +149,7 @@ mod tests_transaction {
 #[cfg(test)]
 mod tests_date {
     use super::*;
-    use chrono::{Date,TimeZone,Utc};
+    use chrono::{TimeZone,Utc};
 
     #[test]
     fn a_date_should_be_equal_to_itself() {
