@@ -1,6 +1,7 @@
-#[allow(dead_code)]
+#![allow(dead_code)]
 
 mod date;
+mod period;
 mod transaction;
 
 
