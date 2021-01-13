@@ -7,8 +7,13 @@ pub fn within(period: Period, date: Date) -> bool {
     date >= start && date <= end
 }
 
-pub fn from_year(year: i32) -> Period {
-    (Date::from_ymd(year, 1, 1), Date::from_ymd(year, 12, 31))
+pub fn from_year(year: i32) -> Option<Period> {
+    if year > 0 { 
+        Some((Date::from_ymd(year, 1, 1), Date::from_ymd(year, 12, 31)))
+    }
+    else {
+        None
+    }
 }
 
 pub fn from_year_up_to(year: i32, month: u32) -> Option<Period> {
@@ -41,7 +46,7 @@ mod tests {
 
     #[test]
     fn a_period_can_be_created_given_a_year() {
-        assert_eq!(from_year(2020), (Date::from_ymd(2020,01,01),Date::from_ymd(2020,12,31)));
+        assert_eq!(from_year(2020), Some((Date::from_ymd(2020,01,01),Date::from_ymd(2020,12,31))));
     }
 
     #[test]
